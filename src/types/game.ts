@@ -39,7 +39,7 @@ export type Card = {
   image?: string;
 };
 
-export type Screen = "HOME" | "CHARACTERS" | "BOARD" | "VICTORY";
+export type Screen = "HOME" | "SETUP" | "CHARACTERS" | "BOARD" | "VICTORY";
 
 export type CardSource = "YELLOW" | "GREEN" | "CHALLENGE";
 

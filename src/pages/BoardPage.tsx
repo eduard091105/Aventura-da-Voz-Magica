@@ -157,10 +157,12 @@ export const BoardPage = () => {
     setIsRolling(false);
   };
 
+
   return (
     <ScreenShell className="h-screen overflow-hidden bg-[radial-gradient(circle_at_15%_10%,#fff7cc_0,#c2f0ff_40%,#9be8b0_100%)] p-1">
-      <div className="grid h-full items-start gap-2 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="-mt-2 h-full">
+      <div className="grid h-full items-stretch gap-2 lg:grid-cols-[minmax(0,1fr)_300px]">
+        {/* Ajuste aqui a POSICAO do tabuleiro na tela (subir/descer): use items-start/items-center e pt-* */}
+        <div className="flex h-full items-start justify-center pt-1">
           <BoardView />
         </div>
         <aside className="flex h-full min-h-0 flex-col rounded-3xl bg-white/90 p-3 shadow-xl">
@@ -336,6 +338,7 @@ export const BoardPage = () => {
           </div>
         </div>
       )}
+
     </ScreenShell>
   );
 };

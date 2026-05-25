@@ -25,8 +25,13 @@ type GameState = {
   selectCharacter: (playerId: string, characterId: string) => void;
   rollDice: (forcedRoll?: number) => number | undefined;
   resolvePendingBack: () => void;
+  devSetCurrentPlayer: (playerIndex: number) => void;
+  devSetPlayerPosition: (playerId: string, position: number) => void;
+  devSetPlayerSkipTurn: (playerId: string, skipTurn: boolean) => void;
+  devClearTurnResult: () => void;
   nextTurn: () => void;
   resetGame: () => void;
+  restartToSetup: () => void;
 };
 
 const createPlayers = (names: string[]): Player[] =>
@@ -196,6 +201,30 @@ export const useGameStore = create<GameState>()(
           }
         });
       },
+      devSetCurrentPlayer: (playerIndex) => {
+        const { players } = get();
+        if (!players.length) return;
+        const safeIndex = Math.max(0, Math.min(playerIndex, players.length - 1));
+        set({ currentPlayerIndex: safeIndex });
+      },
+      devSetPlayerPosition: (playerId, position) => {
+        const { players } = get();
+        const safePos = Math.max(0, Math.min(position, BOARD_SIZE));
+        set({
+          players: players.map((player) =>
+            player.id === playerId ? { ...player, position: safePos, winner: safePos >= BOARD_SIZE } : player
+          )
+        });
+      },
+      devSetPlayerSkipTurn: (playerId, skipTurn) => {
+        const { players } = get();
+        set({
+          players: players.map((player) => (player.id === playerId ? { ...player, skipTurn } : player))
+        });
+      },
+      devClearTurnResult: () => {
+        set({ turnResult: undefined });
+      },
       nextTurn: () => {
         const { players, currentPlayerIndex } = get();
         if (!players.length) return;
@@ -204,11 +233,13 @@ export const useGameStore = create<GameState>()(
           turnResult: undefined
         });
       },
-      resetGame: () => set({ screen: "HOME", players: [], currentPlayerIndex: 0, winnerId: undefined, turnResult: undefined })
+      resetGame: () => set({ screen: "HOME", players: [], currentPlayerIndex: 0, winnerId: undefined, turnResult: undefined }),
+      restartToSetup: () => set({ screen: "SETUP", players: [], currentPlayerIndex: 0, winnerId: undefined, turnResult: undefined })
     }),
     {
-      name: "voz-magica-save-v4",
-      version: 2,
+      name: "voz-magica-save-v5",
+      version: 3,
+      partialize: () => ({}),
       migrate: () => ({
         screen: "HOME",
         players: [],

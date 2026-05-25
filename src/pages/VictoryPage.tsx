@@ -1,26 +1,48 @@
-﻿import { ScreenShell } from "../components/ScreenShell";
+import { ScreenShell } from "../components/ScreenShell";
 import { useGameStore } from "../store/gameStore";
 import { audio } from "../utils/audio";
 import { useEffect } from "react";
+import { motion } from "framer-motion";
 
 export const VictoryPage = () => {
-  const players = useGameStore((s) => s.players);
-  const winnerId = useGameStore((s) => s.winnerId);
   const resetGame = useGameStore((s) => s.resetGame);
-  const winner = players.find((p) => p.id === winnerId);
+  const restartToSetup = useGameStore((s) => s.restartToSetup);
 
   useEffect(() => {
     audio.playWin();
   }, []);
 
   return (
-    <ScreenShell className="grid place-items-center bg-gradient-to-br from-yellow-200 to-green-300">
-      <section className="w-full max-w-xl rounded-3xl bg-white p-8 text-center shadow-2xl">
-        <h2 className="text-4xl font-black">Parabens!</h2>
-        <p className="mt-3 text-xl">{winner?.name} salvou a Voz Magica!</p>
-        <button onClick={resetGame} className="mt-6 rounded-xl bg-green-600 px-6 py-3 text-white">
-          Jogar Novamente
-        </button>
+    <ScreenShell className="p-0 md:p-0">
+      <section className="fixed inset-0 overflow-hidden bg-[#f6d84f]">
+        <div className="relative h-full w-full">
+          <img
+            src="/img/home/tela-vitoria.png"
+            alt="Parabens"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+
+          <div className="absolute left-1/2 top-[88%] z-20 flex w-[52%] -translate-x-1/2 -translate-y-1/2 gap-3 md:gap-5">
+            <motion.button
+              type="button"
+              onClick={resetGame}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.96 }}
+              className="h-14 flex-1 rounded-2xl border-2 border-white bg-blue-600 text-lg font-black text-white shadow-lg md:h-16 md:text-2xl"
+            >
+              Home
+            </motion.button>
+            <motion.button
+              type="button"
+              onClick={restartToSetup}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.96 }}
+              className="h-14 flex-1 rounded-2xl border-2 border-white bg-pink-600 text-lg font-black text-white shadow-lg md:h-16 md:text-2xl"
+            >
+              Jogar Novamente
+            </motion.button>
+          </div>
+        </div>
       </section>
     </ScreenShell>
   );

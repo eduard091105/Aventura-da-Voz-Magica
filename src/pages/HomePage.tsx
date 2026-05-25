@@ -1,47 +1,32 @@
-﻿import { ScreenShell } from "../components/ScreenShell";
+import { ScreenShell } from "../components/ScreenShell";
 import { useGameStore } from "../store/gameStore";
-import { useState } from "react";
+import { motion } from "framer-motion";
 
 export const HomePage = () => {
-  const setupPlayers = useGameStore((s) => s.setupPlayers);
-  const [names, setNames] = useState(["", ""]);
-
-  const updateName = (index: number, value: string) => {
-    const copy = [...names];
-    copy[index] = value;
-    setNames(copy);
-  };
-
-  const addPlayer = () => {
-    if (names.length < 4) setNames([...names, ""]);
-  };
+  const setScreen = useGameStore((s) => s.setScreen);
 
   return (
-    <ScreenShell className="flex items-center justify-center bg-gradient-to-br from-skyKid to-sunKid">
-      <section className="w-full max-w-2xl rounded-3xl bg-white/90 p-6 shadow-xl">
-        <h1 className="text-3xl font-extrabold">Aventura da Voz Magica</h1>
-        <p className="mt-2 text-sm">Monte de 2 a 4 jogadores para comecar.</p>
-        <div className="mt-5 grid gap-3">
-          {names.map((name, idx) => (
-            <input
-              key={idx}
-              value={name}
-              onChange={(e) => updateName(idx, e.target.value)}
-              placeholder={`Nome do Jogador ${idx + 1}`}
-              className="h-12 rounded-xl border-2 border-slate-300 px-3 text-lg"
-            />
-          ))}
-        </div>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <button onClick={addPlayer} className="rounded-xl bg-slate-700 px-5 py-3 text-white" disabled={names.length >= 4}>
-            Adicionar Jogador
-          </button>
-          <button
-            onClick={() => setupPlayers(names.map((n, i) => (n.trim() ? n.trim() : `Jogador ${i + 1}`)))}
-            className="rounded-xl bg-green-600 px-6 py-3 text-white"
+    <ScreenShell className="p-0 md:p-0">
+      <section className="fixed inset-0 overflow-hidden bg-[#f6d84f]">
+        <div className="relative h-full w-full">
+          <img
+            src="/img/home/tela-inicial.png"
+            alt="Aventura da Voz Magica"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+
+          <motion.button
+            type="button"
+            onClick={() => setScreen("SETUP")}
+            animate={{ y: [0, -5, 0], scale: [1, 1.05, 0.97], boxShadow: ["0 0 0 rgba(255,255,255,0)", "0 0 0 8px rgba(255,255,255,0.9)", "0 0 0 rgba(255,255,255,0)"] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.96 }}
+            className="absolute left-[34.5%] top-[72.4%] z-20 h-[22%] w-[30%] -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-[999px] bg-transparent"
+            aria-label="Jogar"
           >
-            Jogar
-          </button>
+            <span className="sr-only">Jogar</span>
+          </motion.button>
         </div>
       </section>
     </ScreenShell>

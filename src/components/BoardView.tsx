@@ -21,9 +21,23 @@ export const BoardView = () => {
 
   return (
     <div className="relative h-full rounded-2xl border border-white/60 bg-white/40 shadow-xl">
+      {/* Ajuste aqui o TAMANHO da area do tabuleiro (h-full, max-w, etc.) */}
+      {/* Ajuste aqui o ENCAIXE da imagem do tabuleiro: object-contain (mostra tudo) / object-cover (preenche cortando) */}
       <img src="/img/tabuleiro/tabuleiro corrigido.png" alt="Tabuleiro" className="h-full w-full object-contain" />
 
       <div className="pointer-events-none absolute inset-0">
+        {boardHouses.map((house) => (
+          <div
+            key={`house-debug-${house.index}`}
+            className="absolute -translate-x-1/2 -translate-y-1/2"
+            style={{ left: `${house.x}%`, top: `${house.y}%` }}
+          >
+            <div className="grid place-items-center rounded-full bg-white/80 px-2 py-1 text-xs font-black text-black ring-1 ring-black">
+              {house.index}
+            </div>
+          </div>
+        ))}
+
         {players.map((p) => {
           const ch = characters.find((c) => c.id === p.characterId);
           const coord = findCoord(p.position);
