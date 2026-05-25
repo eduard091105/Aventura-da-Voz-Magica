@@ -134,6 +134,11 @@ export const useGameStore = create<GameState>()(
           sideEvent = { image: "/img/characters/vozinha_vivi.png", text: "Cuide do seu tom de voz" };
         }
 
+        // Safety net: any PLAY_AGAIN card keeps the same player turn.
+        if (card?.action === "PLAY_AGAIN") {
+          extraTurn = true;
+        }
+
         if (newPos >= BOARD_SIZE) {
           newPos = BOARD_SIZE;
           winner = true;
@@ -202,8 +207,8 @@ export const useGameStore = create<GameState>()(
       resetGame: () => set({ screen: "HOME", players: [], currentPlayerIndex: 0, winnerId: undefined, turnResult: undefined })
     }),
     {
-      name: "voz-magica-save-v3",
-      version: 1,
+      name: "voz-magica-save-v4",
+      version: 2,
       migrate: () => ({
         screen: "HOME",
         players: [],

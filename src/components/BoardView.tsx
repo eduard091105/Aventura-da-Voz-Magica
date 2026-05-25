@@ -24,10 +24,6 @@ export const BoardView = () => {
       <img src="/img/tabuleiro/tabuleiro corrigido.png" alt="Tabuleiro" className="h-full w-full object-contain" />
 
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${START_COORD.x}%`, top: `${START_COORD.y}%` }}>
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-white/90 text-[10px] font-bold">INI</div>
-        </div>
-
         {players.map((p) => {
           const ch = characters.find((c) => c.id === p.characterId);
           const coord = findCoord(p.position);

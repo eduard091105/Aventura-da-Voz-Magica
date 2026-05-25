@@ -58,7 +58,14 @@ export const BoardPage = () => {
       setAwaitingContinue(false);
       return;
     }
-    setAwaitingContinue(Boolean(turnResult.sideEvent || turnResult.card));
+    setAwaitingContinue(
+      Boolean(
+        turnResult.sideEvent ||
+          turnResult.card ||
+          turnResult.pendingBackSteps ||
+          turnResult.rolled === 0
+      )
+    );
   }, [turnResult]);
 
   const needsContinueHint = useMemo(() => {
@@ -80,10 +87,8 @@ export const BoardPage = () => {
 
     if (centerNotice && isSkipNotice) {
       setCenterNotice(null);
-      if (awaitingContinue) {
-        setAwaitingContinue(false);
-        nextTurn();
-      }
+      setAwaitingContinue(false);
+      nextTurn();
       return;
     }
 
@@ -95,7 +100,13 @@ export const BoardPage = () => {
 
     if (centerSideEvent) {
       setCenterSideEvent(null);
-      advanceTurnIfNeeded();
+      if (turnResult?.pendingBackSteps) {
+        setAwaitingContinue(false);
+        resolvePendingBack();
+        setTimeout(() => nextTurn(), 950);
+      } else {
+        advanceTurnIfNeeded();
+      }
       return;
     }
 
