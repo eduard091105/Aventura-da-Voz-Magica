@@ -1,0 +1,453 @@
+PAGES 11
+
+--- PAGE 1 ---
+Aventura da Voz Mágica – Documento Mestre para Desenvolvimento  
+OBJETIVO 
+Criar um jogo web infantil baseado no tabuleiro físico “Aventura da Voz Mágica”, ensinando 
+higiene vocal. 
+ 
+PLATAFORMA 
+Apresentação em iPad. 
+Orientação principal: horizontal (landscape). 
+ 
+Requisitos: 
+- Interface touch 
+- Botões grandes 
+- Tabuleiro centralizado 
+- Layout otimizado para tablet 
+ 
+STACK 
+React 
+Vite 
+TypeScript 
+TailwindCSS 
+Zustand 
+Framer Motion 
+Howler.js 
+LocalStorage 
+ 
+TELAS 
+1. Inicial 
+- Nome 
+- Jogar 
+- Como Jogar 
+ 
+2. Escolha de personagem 
+ 
+3. Tabuleiro 
+ 
+4. Vitória 
+ 
+MECÂNICAS 
+Dado → Movimento → Verificação → Ação 
+ 
+Tipos: 
+--- PAGE 2 ---
+GOOD (+2) 
+BAD (volta) 
+CARD 
+INTERACTION 
+QUIZ 
+FINISH 
+ 
+ASSETS 
+ 
+Todos os arquivos ficarão em: 
+ 
+/img 
+ 
+Estrutura: 
+ 
+img/ 
+ 
+ 
+ characters/ 
+  boca_bia.png 
+  linguinha_lili.png 
+  narizinho_nina.png 
+  gotinha_glu.png 
+  vozinha_vivi.png 
+ 
+ npcs/ 
+  respirinho_re.png 
+  pigarro_pipo.png 
+  gritao.png 
+  geladao.png 
+tabuleiro/ 
+ tabuleiro.jpeg 
+  
+ 
+IMPORTANTE: 
+Não reconstruir o tabuleiro via CSS. 
+Usar board.png como fundo principal. 
+ 
+ARQUITETURA 
+ 
+src/ 
+--- PAGE 3 ---
+ assets/ 
+ components/ 
+ pages/ 
+ store/ 
+ hooks/ 
+ data/ 
+ utils/ 
+ types/ 
+ 
+DIFERENCIAIS 
+- Sons 
+- Feedback visual 
+- Quiz 
+- Responsivo para iPad 
+ 
+Prioridade MVP: 
+- dado 
+- movimentação 
+- ações das casas 
+ 
+ 
+MANUAL DE REGRAS — AVENTURA DA VOZ MÁGICA 
+ 
+VISÃO GERAL 
+ 
+Nome do jogo: 
+AVENTURA DA VOZ MÁGICA 
+ 
+Objetivo: 
+Os jogadores devem atravessar o tabuleiro fazendo escolhas saudáveis para salvar a Voz 
+Mágica. O vencedor é quem chegar primeiro na casa final (“Voz Saudável”). 
+ 
+Público: 
+Crianças (+6 anos) 
+ 
+Quantidade de jogadores: 
+2 a 4 
+ 
+Tema: 
+Higiene vocal infantil. 
+ 
+⸻ 
+--- PAGE 4 ---
+ 
+ESTRUTURA DO TABULEIRO 
+ 
+Quantidade recomendada de casas: 
+35 
+ 
+Tipos de casas: 
+ 
+* Casa normal 
+* Casa verde 
+* Casa vermelha 
+* Casa amarela 
+* Casa especial/final 
+ 
+⸻ 
+ 
+CLASSES DO SISTEMA 
+ 
+CLASSE: PLAYER 
+ 
+Representa o jogador. 
+ 
+Atributos: 
+ 
+* nome 
+* personagem 
+* posiçãoAtual 
+* perdeuRodada (boolean) 
+* venceu (boolean) 
+ 
+Funções: 
+ 
+* mover() 
+* voltarCasas() 
+* avançarCasas() 
+* perderRodada() 
+* verificarVitória() 
+ 
+⸻ 
+ 
+CLASSE: DADO 
+ 
+Representa o dado virtual/físico. 
+--- PAGE 5 ---
+ 
+Atributos: 
+ 
+* valorAtual 
+ 
+Funções: 
+ 
+* rolarDado() 
+ 
+Regras: 
+ 
+* gerar número aleatório entre 1 e 6 
+ 
+⸻ 
+ 
+CLASSE: TABULEIRO 
+ 
+Representa o caminho do jogo. 
+ 
+Atributos: 
+ 
+* listaDeCasas 
+* casaFinal 
+ 
+Funções: 
+ 
+* obterCasaAtual() 
+* verificarTipoDaCasa() 
+ 
+⸻ 
+ 
+CLASSE: CASA 
+ 
+Representa cada espaço do tabuleiro. 
+ 
+Tipos: 
+ 
+* NORMAL 
+* VERDE 
+* VERMELHA 
+* AMARELA 
+* FINAL 
+ 
+--- PAGE 6 ---
+Atributos: 
+ 
+* número 
+* tipo 
+* efeito 
+ 
+⸻ 
+ 
+SISTEMA DE CORES DAS CASAS 
+ 
+CASAS VERDES 
+ 
+Descrição: 
+Casas positivas relacionadas à higiene vocal. 
+ 
+Cor: 
+Verde 
+ 
+Efeito: 
+Jogador ganha vantagem. 
+ 
+Ações possíveis: 
+ 
+* avançar casas 
+* jogar novamente 
+ 
+Exemplos: 
+ 
+* “Você bebeu água → avance 2 casas” 
+* “Você falou baixo → avance 1 casa” 
+* “Respirou pelo nariz → avance 2 casas” 
+* “Descansou a voz → jogue novamente” 
+* “Falou sem gritar → avance 3 casas” 
+ 
+⸻ 
+ 
+CASAS VERMELHAS 
+ 
+Descrição: 
+Casas negativas relacionadas a maus hábitos vocais. 
+ 
+Cor: 
+Vermelha 
+--- PAGE 7 ---
+ 
+Efeito: 
+Jogador recebe penalidade. 
+ 
+Ações possíveis: 
+ 
+* voltar casas 
+* perder rodada 
+ 
+Exemplos: 
+ 
+* “Você gritou → volte 2 casas” 
+* “Ficou pigarreando → perca 1 rodada” 
+* “Falou muito alto → volte 3 casas” 
+* “Forçou a voz → volte 2 casas” 
+ 
+⸻ 
+ 
+CASAS AMARELAS 
+ 
+Descrição: 
+Casas de interação/desafio. 
+ 
+Cor: 
+Amarela 
+ 
+Efeito: 
+Jogador realiza atividade. 
+ 
+Ações possíveis: 
+ 
+* ações interativas 
+* pequenas dinâmicas 
+ 
+Exemplos: 
+ 
+* “Faça uma respiração pelo nariz” 
+* “Imite alguém gritando e depois fale normal” 
+* “Fale uma frase bem baixinho” 
+* “Finja beber água” 
+ 
+⸻ 
+ 
+--- PAGE 8 ---
+CLASSE: CARTA 
+ 
+Representa cartas do jogo. 
+ 
+Atributos: 
+ 
+* tipo 
+* mensagem 
+* ação 
+* valor 
+ 
+Tipos: 
+ 
+* VERDE 
+* VERMELHA 
+* AMARELA 
+ 
+⸻ 
+ 
+CLASSE: CARTA VERDE 
+ 
+Função: 
+Beneficiar o jogador. 
+ 
+Possíveis ações: 
+ 
+* avançarCasas() 
+* jogarNovamente() 
+ 
+⸻ 
+ 
+CLASSE: CARTA VERMELHA 
+ 
+Função: 
+Punir jogador. 
+ 
+Possíveis ações: 
+ 
+* voltarCasas() 
+* perderRodada() 
+ 
+⸻ 
+ 
+--- PAGE 9 ---
+CLASSE: CARTA AMARELA 
+ 
+Função: 
+Criar interação. 
+ 
+Possíveis ações: 
+ 
+* mostrarDesafio() 
+* interaçãoVisual() 
+ 
+⸻ 
+ 
+PERSONAGENS 
+ 
+PERSONAGENS POSITIVOS 
+ 
+Boca Bia 
+ 
+* representa fala saudável 
+ 
+Linguinha Lili 
+ 
+* representa articulação 
+ 
+Respirinho Rê 
+ 
+* representa respiração nasal 
+ 
+Gotinha Glu 
+ 
+* representa hidratação 
+ 
+Vozinha Vivi 
+ 
+* representa voz saudável 
+ 
+⸻ 
+ 
+PERSONAGENS NEGATIVOS 
+ 
+Gritão 
+ 
+* representa gritos 
+--- PAGE 10 ---
+ 
+Pigarro Pipo 
+ 
+* representa pigarro excessivo 
+ 
+Geladão 
+ 
+* representa exagero de bebidas geladas 
+ 
+⸻ 
+ 
+FLUXO DO JOGO 
+ 
+1. Jogador inicia na casa inicial 
+2. Jogador rola dado 
+3. Personagem se move 
+4. Sistema identifica tipo da casa 
+5. Sistema executa ação da casa 
+6. Próximo jogador joga 
+7. Vence quem chegar ao final 
+ 
+⸻ 
+ 
+SISTEMA DE VITÓRIA 
+ 
+Condição: 
+Chegar na última casa. 
+ 
+Tela final: 
+“Parabéns! Você salvou a Voz Mágica!” 
+ 
+⸻ 
+ 
+REGRAS IMPORTANTES 
+ 
+* Jogador não pode ultrapassar a última casa 
+* Caso o jogador esteja com status “perdeu rodada”, ele pula o turno 
+* Casas verdes sempre ajudam 
+* Casas vermelhas sempre atrapalham 
+* Casas amarelas sempre geram interação 
+ 
+⸻ 
+ 
+--- PAGE 11 ---
+IDEIAS EXTRAS PARA O APP 
+ 
+* sons de vitória 
+* som de dado 
+* animações simples 
+* feedback verde/vermelho 
+* botão “jogar novamente” 
+* ranking simples 
+ 
+⸻ 
+ 
+OBJETIVO PEDAGÓGICO 
+ 
+Ensinar higiene vocal infantil de forma lúdica e interativa, incentivando hábitos saudáveis 
+relacionados ao uso da voz. 
