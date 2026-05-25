@@ -13,6 +13,7 @@ export const BoardPage = () => {
   const turnResult = useGameStore((s) => s.turnResult);
   const rollDice = useGameStore((s) => s.rollDice);
   const resolvePendingBack = useGameStore((s) => s.resolvePendingBack);
+  const resolvePendingAdvance = useGameStore((s) => s.resolvePendingAdvance);
   const nextTurn = useGameStore((s) => s.nextTurn);
 
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
@@ -23,6 +24,7 @@ export const BoardPage = () => {
   const [centerSideEvent, setCenterSideEvent] = useState<{ image: string; text: string } | null>(null);
   const [cardStage, setCardStage] = useState<"none" | "mystery" | "revealed">("none");
   const [cardRevealedForHud, setCardRevealedForHud] = useState(false);
+  const [hudCardImage, setHudCardImage] = useState<string | null>(null);
   const [awaitingContinue, setAwaitingContinue] = useState(false);
 
   const current = players[currentPlayerIndex];
@@ -46,12 +48,13 @@ export const BoardPage = () => {
   }, [turnResult]);
 
   useEffect(() => {
-    if (turnResult?.sideEvent && turnResult.rolled > 0) {
+    const currentPos = current?.position ?? -1;
+    if (turnResult?.sideEvent && turnResult.rolled > 0 && turnResult.triggeredHouse === currentPos) {
       setCenterSideEvent(turnResult.sideEvent);
     } else {
       setCenterSideEvent(null);
     }
-  }, [turnResult?.sideEvent, turnResult?.rolled]);
+  }, [turnResult?.sideEvent, turnResult?.rolled, turnResult?.triggeredHouse, current?.position]);
 
   useEffect(() => {
     if (!turnResult || turnResult.winner || turnResult.extraTurn) {
@@ -63,10 +66,29 @@ export const BoardPage = () => {
         turnResult.sideEvent ||
           turnResult.card ||
           turnResult.pendingBackSteps ||
+          turnResult.pendingAdvanceSteps ||
           turnResult.rolled === 0
       )
     );
   }, [turnResult]);
+
+  useEffect(() => {
+    if (!turnResult) return;
+    if (turnResult.winner || turnResult.extraTurn) return;
+    const hasInteraction = Boolean(
+      turnResult.sideEvent ||
+      turnResult.card ||
+      turnResult.pendingBackSteps ||
+      turnResult.pendingAdvanceSteps ||
+      turnResult.rolled === 0
+    );
+    if (hasInteraction) return;
+
+    const timeout = setTimeout(() => {
+      nextTurn();
+    }, 650);
+    return () => clearTimeout(timeout);
+  }, [turnResult, nextTurn]);
 
   const needsContinueHint = useMemo(() => {
     if (showDiceOverlay || expandedCard) return false;
@@ -94,7 +116,15 @@ export const BoardPage = () => {
 
     if (cardStage === "revealed") {
       setCardStage("none");
-      advanceTurnIfNeeded();
+      if (turnResult?.pendingBackSteps) {
+        setAwaitingContinue(false);
+        resolvePendingBack();
+      } else if (turnResult?.pendingAdvanceSteps) {
+        setAwaitingContinue(false);
+        resolvePendingAdvance();
+      } else {
+        advanceTurnIfNeeded();
+      }
       return;
     }
 
@@ -103,7 +133,9 @@ export const BoardPage = () => {
       if (turnResult?.pendingBackSteps) {
         setAwaitingContinue(false);
         resolvePendingBack();
-        setTimeout(() => nextTurn(), 950);
+      } else if (turnResult?.pendingAdvanceSteps) {
+        setAwaitingContinue(false);
+        resolvePendingAdvance();
       } else {
         advanceTurnIfNeeded();
       }
@@ -114,7 +146,11 @@ export const BoardPage = () => {
       if (turnResult.pendingBackSteps) {
         setAwaitingContinue(false);
         resolvePendingBack();
-        setTimeout(() => nextTurn(), 950);
+        return;
+      }
+      if (turnResult.pendingAdvanceSteps) {
+        setAwaitingContinue(false);
+        resolvePendingAdvance();
         return;
       }
       setAwaitingContinue(false);
@@ -125,11 +161,13 @@ export const BoardPage = () => {
   const handleRevealCard = () => {
     if (!turnResult?.card) return;
     setCardRevealedForHud(true);
+    setHudCardImage(turnResult.card.image ?? null);
     setCardStage("revealed");
   };
 
   const handleRollDice = async () => {
     if (isRolling || !current) return;
+    setHudCardImage(null);
 
     if (current.skipTurn) {
       rollDice();
@@ -159,13 +197,13 @@ export const BoardPage = () => {
 
 
   return (
-    <ScreenShell className="h-screen overflow-hidden bg-[radial-gradient(circle_at_15%_10%,#fff7cc_0,#c2f0ff_40%,#9be8b0_100%)] p-1">
+    <ScreenShell className="h-screen overflow-hidden bg-[#9be8b0] bg-[url('/img/tabuleiro/fundo.png')] bg-cover bg-center bg-no-repeat p-1">
       <div className="grid h-full items-stretch gap-2 lg:grid-cols-[minmax(0,1fr)_300px]">
         {/* Ajuste aqui a POSICAO do tabuleiro na tela (subir/descer): use items-start/items-center e pt-* */}
         <div className="flex h-full items-start justify-center pt-1">
           <BoardView />
         </div>
-        <aside className="flex h-full min-h-0 flex-col rounded-3xl bg-white/90 p-3 shadow-xl">
+        <aside className="relative flex h-full min-h-0 flex-col rounded-3xl bg-white/90 p-3 shadow-xl">
           <h2 className="text-lg font-bold">Turno atual</h2>
           <p className="mt-1 text-xl font-extrabold">{current?.name}</p>
           <button
@@ -179,9 +217,9 @@ export const BoardPage = () => {
           {turnResult && (
             <div className="mt-3 rounded-xl bg-slate-100 p-2">
               <p className="text-sm">{turnResult.message}</p>
-              {turnResult.card?.image && cardRevealedForHud && (
-                <button type="button" onClick={() => setExpandedCard(turnResult.card!.image!)} className="mt-2 block w-full">
-                  <img src={turnResult.card.image} alt="Carta" className="max-h-44 w-full rounded-lg object-contain" />
+              {hudCardImage && cardRevealedForHud && (
+                <button type="button" onClick={() => setExpandedCard(hudCardImage)} className="mt-2 block w-full">
+                  <img src={hudCardImage} alt="Carta" className="max-h-60 w-full rounded-lg object-contain" />
                   <p className="mt-1 text-xs text-slate-600">Toque na carta para ampliar</p>
                 </button>
               )}
@@ -194,6 +232,14 @@ export const BoardPage = () => {
                 {p.name}: {p.position === 0 ? "Inicio" : `Casa ${p.position}`} {p.skipTurn ? "(perde proxima)" : ""}
               </p>
             ))}
+          </div>
+
+          <div className="pointer-events-none absolute bottom-1 right-1">
+            <img
+              src="/img/hud/lingua_lili_hud.png"
+              alt="Linguinha Lili no HUD"
+              className="h-[12rem] w-auto -translate-x-16 rotate-6 object-contain"
+            />
           </div>
         </aside>
       </div>
@@ -228,11 +274,11 @@ export const BoardPage = () => {
             className="fixed inset-0 z-35 grid place-items-center"
             onClick={handleContinue}
           >
-            <div className="flex min-w-[820px] items-center justify-center gap-6 rounded-3xl bg-white/95 px-12 py-8 shadow-2xl">
-              <img src={centerSideEvent.image} alt="Evento da casa" className="h-36 w-36 rounded-2xl object-contain" />
+            <div className="flex min-w-[900px] items-center justify-center gap-8 rounded-3xl bg-white/95 px-14 py-10 shadow-2xl">
+              <img src={centerSideEvent.image} alt="Evento da casa" className="h-44 w-44 rounded-2xl object-contain" />
               <div>
-                <p className="text-6xl font-black leading-tight text-slate-900">{centerSideEvent.text}</p>
-                <p className="mt-4 text-xl font-semibold text-slate-600">clique para continuar</p>
+                <p className="text-7xl font-black leading-tight text-slate-900">{centerSideEvent.text}</p>
+                <p className="mt-5 text-2xl font-semibold text-slate-600">clique para continuar</p>
               </div>
             </div>
           </motion.div>
@@ -249,7 +295,7 @@ export const BoardPage = () => {
           >
             <button type="button" onClick={handleRevealCard} className="group">
               <div
-                className={`grid h-72 w-52 place-items-center rounded-3xl border-4 border-white text-8xl font-black text-white shadow-2xl transition-transform group-hover:scale-105 ${
+                className={`grid h-[82vh] max-h-[82vh] w-[460px] place-items-center rounded-3xl border-4 border-white text-9xl font-black text-white shadow-2xl transition-transform group-hover:scale-105 ${
                   turnResult.cardSource === "YELLOW"
                     ? "bg-yellow-400"
                     : turnResult.cardSource === "CHALLENGE"
@@ -275,7 +321,7 @@ export const BoardPage = () => {
             onClick={handleContinue}
           >
             <div className="grid place-items-center">
-              <img src={turnResult.card.image} alt="Carta revelada" className="max-h-[78vh] w-[420px] rounded-2xl object-contain shadow-2xl" />
+              <img src={turnResult.card.image} alt="Carta revelada" className="max-h-[82vh] w-[500px] rounded-2xl object-contain shadow-2xl" />
               <p className="mt-4 text-2xl font-black text-white">clique para continuar</p>
             </div>
           </motion.div>
@@ -295,7 +341,7 @@ export const BoardPage = () => {
               initial={{ scale: 0.7, rotate: -12 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: "spring", stiffness: 260, damping: 18 }}
-              className="grid h-48 w-48 place-items-center rounded-[2rem] border-8 border-white bg-blue-600 text-8xl font-black text-white shadow-2xl"
+              className="grid h-56 w-56 place-items-center rounded-[2rem] border-8 border-white bg-blue-600 text-9xl font-black text-white shadow-2xl"
             >
               {diceValue}
             </motion.div>

@@ -18,7 +18,7 @@ export const SetupPage = () => {
   };
 
   return (
-    <ScreenShell className="flex items-center justify-center bg-gradient-to-br from-skyKid to-sunKid">
+    <ScreenShell className="flex items-center justify-center bg-[#9be8b0] bg-[url('/img/tabuleiro/fundo.png')] bg-cover bg-center bg-no-repeat">
       <section className="w-full max-w-2xl rounded-3xl bg-white/95 p-6 shadow-xl">
         <h1 className="text-3xl font-extrabold">Nome dos Jogadores</h1>
         <p className="mt-2 text-sm">Monte de 2 a 4 jogadores para comecar.</p>
@@ -51,4 +51,3 @@ export const SetupPage = () => {
     </ScreenShell>
   );
 };
-

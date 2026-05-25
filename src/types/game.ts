@@ -51,7 +51,9 @@ export type TurnResult = {
     image: string;
     text: string;
   };
+  triggeredHouse?: number;
   pendingBackSteps?: number;
+  pendingAdvanceSteps?: number;
   message: string;
   extraTurn: boolean;
   winner: boolean;
